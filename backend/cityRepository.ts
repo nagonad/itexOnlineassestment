@@ -10,6 +10,7 @@ async function createCity(cityName: string, count: number) {
     },
   });
 }
+
 async function getCityById(uuid: string) {
   return await prisma.city.findUnique({
     where: { uuid },
@@ -17,7 +18,13 @@ async function getCityById(uuid: string) {
 }
 
 async function getAllCities() {
-  return await prisma.city.findMany();
+  return await prisma.city.findMany({
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+    ],
+  });
 }
 
 async function updateCity(uuid: string, cityName: string, count: number) {

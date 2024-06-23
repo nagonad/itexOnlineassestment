@@ -5,6 +5,7 @@ import {
   updateCity,
   getAllCities,
   deleteCity,
+  nextCities,
 } from "./cityRepository";
 const router = express.Router();
 
@@ -35,6 +36,7 @@ router.get("/city/:uuid", async (req: Request, res: Response) => {
     }
   }
 });
+
 router.delete("/city/:uuid", async (req: Request, res: Response) => {
   const { uuid } = req.params;
   try {
@@ -51,9 +53,11 @@ router.delete("/city/:uuid", async (req: Request, res: Response) => {
   }
 });
 
-router.get("/cities", async (_req: Request, res: Response) => {
+router.post("/cities", async (req: Request, res: Response) => {
+  const take = req.body.take;
+  const skip = req.body.page * take;
   try {
-    const cities = await getAllCities();
+    const cities = await getAllCities(skip, take);
     res.json(cities);
   } catch (error) {
     if (error instanceof Error) {
@@ -72,6 +76,18 @@ router.put("/city/:uuid", async (req: Request, res: Response) => {
   try {
     const updatedCity = await updateCity(uuid, cityName, count);
     res.json(updatedCity);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+});
+
+router.get("/city/next/:uuid", async (req: Request, res: Response) => {
+  const { uuid } = req.params;
+  try {
+    const nextCitiesResponse = await nextCities(uuid);
+    res.json(nextCitiesResponse);
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ error: error.message });

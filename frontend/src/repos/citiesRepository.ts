@@ -8,15 +8,14 @@ interface CityState {
   cities: City[];
   loading: boolean;
   error: string | null;
-  getAllCities: () => Promise<void>;
+  getAllCities: (page?: number, take?: number) => Promise<void>;
   createCity: (cityName: string, count: number) => Promise<void>;
-  getCityById: (uuid: string) => Promise<City | null>;
   updateCity: (uuid: string, cityName: string, count: number) => Promise<void>;
   deleteCity: (uuid: string) => Promise<void>;
   selectCity: (city: City) => void;
 }
 
-const useCityRepository = create<CityState>((set) => ({
+const useCityRepository = create<CityState>((set, get) => ({
   selectedCity: initialCity,
   cities: [],
   loading: false,
@@ -26,13 +25,14 @@ const useCityRepository = create<CityState>((set) => ({
     set({ selectedCity: city });
   },
 
-  getAllCities: async () => {
+  getAllCities: async (page: number = 0, take: number = 5) => {
     set({ loading: true, error: null });
     try {
-      const response = await axios.get<City[]>(
-        "http://localhost:5000/api/cities"
+      const response = await axios.post<City[]>(
+        "http://localhost:5000/api/cities",
+        { page, take }
       );
-      set({ cities: response.data.reverse() });
+      set({ cities: response.data });
     } catch (error) {
       set({ error: "Error fetching cities" });
       console.error("Error fetching cities:", error);
@@ -43,17 +43,17 @@ const useCityRepository = create<CityState>((set) => ({
 
   createCity: async (cityName: string, count: number) => {
     if (count < 1) {
-      toast.error("Invalid count value");
       set({ error: "Invalid count value" });
+      toast.error("Invalid count value");
       return;
     }
     set({ loading: true, error: null });
     try {
-      const response = await axios.post<City>(
-        "http://localhost:5000/api/city",
-        { cityName, count }
-      );
-      set((state) => ({ cities: [response.data, ...state.cities] }));
+      await axios.post<City>("http://localhost:5000/api/city", {
+        cityName,
+        count,
+      });
+      get().getAllCities();
     } catch (error) {
       set({ error: "Error creating city" });
       console.error("Error creating city:", error);
@@ -62,26 +62,10 @@ const useCityRepository = create<CityState>((set) => ({
     }
   },
 
-  getCityById: async (uuid: string) => {
-    set({ loading: true, error: null });
-    try {
-      const response = await axios.get<City>(
-        `http://localhost:5000/api/city/${uuid}`
-      );
-      return response.data;
-    } catch (error) {
-      set({ error: "Error fetching city by ID" });
-      console.error("Error fetching city by ID:", error);
-      return null;
-    } finally {
-      set({ loading: false });
-    }
-  },
-
   updateCity: async (uuid: string, cityName: string, count: number) => {
     if (count < 1) {
-      toast.error("Invalid count value");
       set({ error: "Invalid count number" });
+      toast.error("Invalid count value");
       return;
     }
     set({ loading: true, error: null });
@@ -95,9 +79,11 @@ const useCityRepository = create<CityState>((set) => ({
           city.uuid === uuid ? response.data : city
         ),
       }));
+      toast.success("City is updated");
     } catch (error) {
       set({ error: "Error updating city" });
       console.error("Error updating city:", error);
+      toast.error("Error updating city");
     } finally {
       set({ loading: false });
     }
@@ -107,12 +93,10 @@ const useCityRepository = create<CityState>((set) => ({
     set({ loading: true, error: null });
     try {
       await axios.delete(`http://localhost:5000/api/city/${uuid}`);
-      set((state) => ({
-        cities: state.cities.filter((city) => city.uuid !== uuid),
-      }));
+      get().getAllCities();
     } catch (error) {
       set({ error: "Error deleting city" });
-      console.error("Error deleting city:", error);
+      toast.error("Error deleting city");
     } finally {
       set({ loading: false });
     }

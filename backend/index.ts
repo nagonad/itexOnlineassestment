@@ -5,7 +5,6 @@ import cityRoutes from "./routes";
 const cors = require("cors");
 dotenv.config();
 
-const prisma = new PrismaClient();
 const app: Express = express();
 const port = process.env.PORT;
 app.use(express.json());

@@ -18,13 +18,7 @@ async function getCityById(uuid: string) {
 }
 
 async function getAllCities() {
-  return await prisma.city.findMany({
-    orderBy: [
-      {
-        createdAt: "desc",
-      },
-    ],
-  });
+  return await prisma.city.findMany();
 }
 
 async function updateCity(uuid: string, cityName: string, count: number) {

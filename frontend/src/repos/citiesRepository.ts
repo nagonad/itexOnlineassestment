@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { City, initialCity } from "../helpers/main";
+import { toast } from "react-toastify";
 
 interface CityState {
   selectedCity: City;
@@ -12,6 +13,7 @@ interface CityState {
   getCityById: (uuid: string) => Promise<City | null>;
   updateCity: (uuid: string, cityName: string, count: number) => Promise<void>;
   deleteCity: (uuid: string) => Promise<void>;
+  selectCity: (city: City) => void;
 }
 
 const useCityRepository = create<CityState>((set) => ({
@@ -30,7 +32,7 @@ const useCityRepository = create<CityState>((set) => ({
       const response = await axios.get<City[]>(
         "http://localhost:5000/api/cities"
       );
-      set({ cities: response.data });
+      set({ cities: response.data.reverse() });
     } catch (error) {
       set({ error: "Error fetching cities" });
       console.error("Error fetching cities:", error);
@@ -40,6 +42,11 @@ const useCityRepository = create<CityState>((set) => ({
   },
 
   createCity: async (cityName: string, count: number) => {
+    if (count < 1) {
+      toast.error("Invalid count value");
+      set({ error: "Invalid count value" });
+      return;
+    }
     set({ loading: true, error: null });
     try {
       const response = await axios.post<City>(
@@ -72,6 +79,11 @@ const useCityRepository = create<CityState>((set) => ({
   },
 
   updateCity: async (uuid: string, cityName: string, count: number) => {
+    if (count < 1) {
+      toast.error("Invalid count value");
+      set({ error: "Invalid count number" });
+      return;
+    }
     set({ loading: true, error: null });
     try {
       const response = await axios.put<City>(

@@ -4,6 +4,7 @@ import { City } from "../helpers/main";
 
 function CitiesTable() {
   const {
+    selectCity,
     cities,
     loading,
     error,
@@ -18,7 +19,7 @@ function CitiesTable() {
   }, [getAllCities]);
 
   return (
-    <div className="p-1.5 inline-block align-middle">
+    <div className="p-1.5 inline-block align-middle border rounded-md h-full">
       <table className="divide-y divide-gray-200">
         <thead>
           <tr>
@@ -65,6 +66,7 @@ function CitiesTable() {
                   <button
                     type="button"
                     className="bg-transparent hover:bg-green-500 text-green-700 font-semibold hover:text-white py-2 px-4 border border-green-500 hover:border-transparent rounded"
+                    onClick={() => selectCity(city)}
                   >
                     Update
                   </button>
@@ -73,6 +75,7 @@ function CitiesTable() {
                   <button
                     type="button"
                     className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+                    onClick={() => deleteCity(city.uuid)}
                   >
                     Delete
                   </button>

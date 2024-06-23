@@ -4,7 +4,7 @@ import useCityStore from "../repos/citiesRepository";
 const CreateCity = () => {
   const [cityName, setCityName] = useState("");
   const [count, setCount] = useState(0);
-  const { createCity, loading, error } = useCityStore();
+  const { createCity, loading } = useCityStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,7 +14,7 @@ const CreateCity = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center border p-2">
+    <div className="flex flex-col justify-center items-center border rounded-md p-2 h-full">
       <form className="w-full max-w-sm" onSubmit={handleSubmit}>
         <div className="mb-4">
           <label
@@ -51,13 +51,12 @@ const CreateCity = () => {
         <div className="flex items-center justify-between">
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
             disabled={loading}
           >
             {loading ? "Creating..." : "Create City"}
           </button>
         </div>
-        {error && <p className="text-red-500 text-xs italic mt-4">{error}</p>}
       </form>
     </div>
   );
